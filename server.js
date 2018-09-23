@@ -8,8 +8,24 @@ var cors        = require('cors');
 var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
+var helmet            = require('helmet');
 
 var app = express();
+app.use(helmet());
+app.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    imgSrc: ['hyperdev.com'],
+    scriptSrc: ["'self'", "'unsafe-inline'"]
+  }
+}));
+
+var mongoose = require('mongoose');
+var mongoDB = process.env.MONGO_DB;
+mongoose.connect(mongoDB, { useNewUrlParser: true });
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
