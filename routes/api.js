@@ -20,9 +20,16 @@ module.exports = function (app) {
     .get(function (req, res) {
       //I can GET an array of the most recent 10 bumped threads on the board with only the most 
       //recent 3 replies from /api/threads/{board}. The reported and delete_passwords fields will not be sent.
+    // missing to filer out the replies
       let board = req.params.board;
+    
+      Thread.find({board: board},{},{sort: {created_on:-1}, limit: 10},(err,data) =>{
+        if (err) console.log(err);
+        res.send(data)
+      })
+    
 
-      res.send(board)
+      
     })
 
     .post(function (req, res) {
