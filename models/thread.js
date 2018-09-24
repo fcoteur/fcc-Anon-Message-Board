@@ -10,7 +10,12 @@ var threadSchema = new Schema(
     bumped_on: {type: Date, default: Date.now },
     reported: {type: Boolean, default: false},
     delete_password: {type: String},
-    replies: [{ type: Schema.Types.ObjectId, ref: 'Story' }]
+    replies: [{
+      text: {type: String},
+      created_on: {type: Date, default: Date.now },
+      reported: {type: Boolean},
+      delete_password: {type: String}
+    }]
   }
 );
 

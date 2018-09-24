@@ -15,8 +15,9 @@ app.use(helmet());
 app.use(helmet.contentSecurityPolicy({
   directives: {
     defaultSrc: ["'self'"],
-    imgSrc: ['hyperdev.com'],
-    scriptSrc: ["'self'", "'unsafe-inline'"]
+    imgSrc: ["'self'", 'hyperdev.com', 'glitch.com', 'cdn.gomix.com'],
+    scriptSrc: ["'self'", "'unsafe-inline'", 'code.jquery.com'],
+    styleSrc: ["'unsafe-inline'", "'self'"]
   }
 }));
 
