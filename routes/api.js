@@ -27,8 +27,6 @@ module.exports = function (app) {
         if (err) console.log(err);
         res.send(data)
       })
-    
-
       
     })
 
@@ -65,8 +63,12 @@ module.exports = function (app) {
       //I can GET an entire thread with all it's replies from /api/replies/{board}?thread_id={thread_id}. 
       //Also hiding the same fields.
       let board = req.params.board;
-
-      res.send(board)
+      let thread_id = req.query.thread_id;
+      
+      Thread.findOne({_id: thread_id},(err,data) =>{
+        if (err) console.log(err);
+        res.send(data)
+      })
     })
 
     .post(function (req, res) {
@@ -74,8 +76,20 @@ module.exports = function (app) {
       // & thread_id to /api/replies/{board} and it will also update the bumped_on date to the comments 
       //date.(Recomend res.redirect to thread page /b/{board}/{thread_id}) In the thread's 'replies' array 
       //will be saved _id, text, created_on, delete_password, & reported.
-
-      res.send()
+      
+      let thread_id = req.body.thread_id;
+      let newReply = {
+        text: req.body.text,
+        delete_password: req.body. delete_password
+      };
+    
+      Thread.findOne({_id: thread_id},(err,data) =>{
+        if (err) console.log(err);
+        data.replies.push(newReply);
+        data.bumped_on = Date.now;
+        data.save((err) => {if (err) console.log(err)});
+        res.redirect('/b/'+data.board+"/"+thread_id)
+      })
     })
     
     .delete(function (req, res) {
