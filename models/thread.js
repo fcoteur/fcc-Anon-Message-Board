@@ -13,7 +13,7 @@ var threadSchema = new Schema(
     replies: [{
       text: {type: String},
       created_on: {type: Date, default: Date.now },
-      reported: {type: Boolean},
+      reported: {type: Boolean,  default: false},
       delete_password: {type: String}
     }]
   }
