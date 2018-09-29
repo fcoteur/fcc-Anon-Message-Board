@@ -18,22 +18,24 @@ module.exports = function (app) {
   app.route('/api/threads/:board')
   
     .get(function (req, res) {
-      //I can GET an array of the most recent 10 bumped threads on the board with only the most 
-      //recent 3 replies from /api/threads/{board}. The reported and delete_passwords fields will not be sent.
-    // missing to filer out the replies
-      let board = req.params.board;
-    
+      let board = req.params.board;  
       Thread.find({board: board},{},{sort: {created_on:-1}, limit: 10},(err,data) =>{
         if (err) console.log(err);
+        for (let i=0; i<data.length;i++){
+          if (data[i].replies.length > 3) data[i].replies = data[i].replies.slice(-3);
+          data[i].reported =""; 
+          data[i].delete_password=""; 
+          for (let j=0; j<data[i].replies.length;j++){
+            data[i].replies[j].reported =""; 
+            data[i].replies[j].delete_password=""; 
+          }
+        }
         res.send(data)
       })
       
     })
 
     .post(function (req, res) {
-      //I can POST a thread to a specific message board by passing form data text and delete_password 
-      //to /api/threads/{board}.(Recomend res.redirect to board page /b/{board}) 
-      // Saved will be _id, text, created_on(date&time), bumped_on(date&time, starts same as created_on), reported(boolean), delete_password, & replies(array).
       let thread = new Thread ({
         board: req.body.board, 
         text: req.body.text,
@@ -67,26 +69,22 @@ module.exports = function (app) {
       
       Thread.findOne({_id: thread_id},(err,data) =>{
         if (err) console.log(err);
+        data.reported =""; 
+        data.delete_password=""; 
         res.send(data)
       })
     })
 
-    .post(function (req, res) {
-      //I can POST a reply to a thead on a specific board by passing form data text, delete_password, 
-      // & thread_id to /api/replies/{board} and it will also update the bumped_on date to the comments 
-      //date.(Recomend res.redirect to thread page /b/{board}/{thread_id}) In the thread's 'replies' array 
-      //will be saved _id, text, created_on, delete_password, & reported.
-      
+    .post(function (req, res) {    
       let thread_id = req.body.thread_id;
       let newReply = {
         text: req.body.text,
         delete_password: req.body. delete_password
-      };
-    
+      };  
       Thread.findOne({_id: thread_id},(err,data) =>{
         if (err) console.log(err);
         data.replies.push(newReply);
-        data.bumped_on = Date.now;
+        data.bumped_on = Date.now();
         data.save((err) => {if (err) console.log(err)});
         res.redirect('/b/'+data.board+"/"+thread_id)
       })
@@ -96,9 +94,27 @@ module.exports = function (app) {
       //I can delete a post(just changing the text to '[deleted]') if I send a DELETE request 
       //to /api/replies/{board} and pass along the thread_id, reply_id, & delete_password. 
       //(Text response will be 'incorrect password' or 'success')
-
-      res.send()
+      let thread_id = req.body.thread_id;
+      let reply_id = req.body.reply_id;
+      let delete_password = req.body.delete_password;
+      
+      Thread.findOne({_id: thread_id},(err,data) =>{
+        if (err) console.log(err);
+        
+        for (let i=0;i<data.replies.length;i++) {
+          console.log(data.replies[i])
+          if (data.replies[i]._id === reply_id) {
+            if (data.delete_password === delete_password) {
+              data.replies[i].text = "deleted";
+              res.send("success");
+            } else {
+              res.send("incorrect password");
+            }
+          }
+        }
+      res.send("not ok!")
     })
+  })
   
     .put(function (req, res) {
       //I can report a reply and change it's reported value to true by sending a 
