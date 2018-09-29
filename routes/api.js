@@ -46,17 +46,28 @@ module.exports = function (app) {
     })
     
     .delete(function (req, res) {
-      //I can delete a thread completely if I send a DELETE request to /api/threads/{board} and pass along 
-      //the thread_id & delete_password. (Text response will be 'incorrect password' or 'success')
-
-      res.send()
+      let thread_id = req.body.thread_id;
+      let delete_password = req.body.delete_password;      
+      Thread.findOneAndDelete({_id: thread_id, delete_password: delete_password },(err,data) => {
+        if (err) console.log(err);
+        if (data) {
+          res.send("success"); 
+        } else {
+          res.send("incorrect password");
+        }     
+      })
     })
 
     .put(function (req, res) {
       //I can report a thread and change it's reported value to true by sending a PUT request 
       //to /api/threads/{board} and pass along the thread_id. (Text response will be 'success')
-
-      res.send()
+      let thread_id = req.body.thread_id;     
+      console.log(thread_id)
+      Thread.findOne({_id: thread_id},(err,data) => {
+        if (err) console.log(err);
+        data.reported = true
+        data.save((err) => {if (err) console.log(err)});
+      })
     })
   
   app.route('/api/replies/:board')
@@ -100,19 +111,17 @@ module.exports = function (app) {
       
       Thread.findOne({_id: thread_id},(err,data) =>{
         if (err) console.log(err);
-        
         for (let i=0;i<data.replies.length;i++) {
-          console.log(data.replies[i])
-          if (data.replies[i]._id === reply_id) {
-            if (data.delete_password === delete_password) {
+          if (data.replies[i]._id == reply_id) {
+            if (data.replies[i].delete_password == delete_password) {
               data.replies[i].text = "deleted";
-              res.send("success");
+              data.save((err) => {if (err) console.log(err)});
+              res.send("success"); 
             } else {
               res.send("incorrect password");
             }
           }
         }
-      res.send("not ok!")
     })
   })
   
