@@ -19,26 +19,43 @@ suite('Functional Tests', function() {
     
     suite('POST', function() {
       //I can POST a thread to a specific message board by passing form data text and delete_password 
-      //to /api/threads/{board}.(Recomend res.redirect to board page /b/{board}) 
-      //Saved will be _id, text, created_on(date&time), 
-      //bumped_on(date&time, starts same as created_on), reported(boolean), delete_password, & replies(array).
-      chai.request(server)
-        .post('api/threads')
+      //to /api/threads/{board}.(Recomend res.redirect to board page /b/{board}) Saved will be _id, text, 
+      //created_on(date&time), bumped_on(date&time, starts same as created_on), reported(boolean), 
+      //delete_password, & replies(array).
+     test('Posting thread', done => {
+        chai.request(server)
+        .post('/api/threads/testboard')
         .send({text: "text to test", delete_password: "del" })
-        .end(function(err, res){
-          console.log(err);  
-        });
-    });
+        .end((err, res) => { 
+          assert.equal(res.status, 200, 'Status OK')
+          done()  
+        })
+      }) 
+      
+      
+      
+    })
     
     suite('GET', function() {
       //I can GET an array of the most recent 10 bumped threads on the board with only the most recent
       //3 replies from /api/threads/{board}. The reported and delete_passwords fields will not be sent.
-       chai.request(server)
-        .get('api/threads')
-        .send({board: "testboard"})
-        .end(function(err, res){
-          console.log(err); 
-        }); 
+    test('Posting thread', done => {
+        chai.request(server)
+        .get('/api/threads/testboard')
+        .end((err, res) => { 
+          assert.equal(res.status, 200, 'Status OK')
+          assert.isArray(res.body)
+          assert.isTrue(res.body.length <= 10)
+          console.log(res.body)
+          for (let i=0; i< res.body.length; i++) {
+            console.log(i)
+            assert.equal(res.body[i].delete_passwords, "asdf")
+            assert.equal(res.body[i].reported, "")
+          }
+          done() 
+        })
+      })    
+      
     });
     
     suite('DELETE', function() {

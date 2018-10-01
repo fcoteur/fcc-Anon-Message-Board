@@ -8,7 +8,7 @@ var threadSchema = new Schema(
     text: {type: String},
     created_on: {type: Date, default: Date.now },
     bumped_on: {type: Date, default: Date.now },
-    reported: {type: Boolean, default: false},
+    reported: {type: Boolean},
     delete_password: {type: String},
     replies: [{
       text: {type: String},

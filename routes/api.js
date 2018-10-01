@@ -9,7 +9,6 @@
 'use strict';
 
 var Thread = require('../models/thread');
-var Reply = require('../models/reply');
 
 var expect = require('chai').expect;
 
