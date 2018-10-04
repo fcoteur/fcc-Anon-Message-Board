@@ -22,7 +22,7 @@ module.exports = function (app) {
         if (err) console.log(err);
         for (let i=0; i<data.length;i++){
           if (data[i].replies.length > 3) data[i].replies = data[i].replies.slice(-3);
-          data[i].reported =""; 
+          data[i].reported = false; 
           data[i].delete_password=""; 
           for (let j=0; j<data[i].replies.length;j++){
             data[i].replies[j].reported =""; 
@@ -35,13 +35,15 @@ module.exports = function (app) {
     })
 
     .post(function (req, res) {
+      let board = req.params.board;  
       let thread = new Thread ({
-        board: req.body.board, 
+        board: board, 
         text: req.body.text,
         delete_password: req.body.delete_password,
       });
       thread.save((err) => {if (err) console.log(err)});
-      res.redirect('/b/'+req.body.board)
+      res.send(thread)  
+      //res.redirect('/b/'+req.body.board)
     })
     
     .delete(function (req, res) {
