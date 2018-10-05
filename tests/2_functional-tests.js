@@ -13,11 +13,13 @@ var server = require('../server');
 
 chai.use(chaiHttp);
 
-suite('Functional Tests', function() {
+suite('Functional Tests', function() { 
 
   suite('API ROUTING FOR /api/threads/:board', function() {
     
-    let idTestThread, delPwdTestThread;
+    let idTestThread,
+        idTestThread2,
+        delPwdTestThread;
     
     suite('POST', function() {
       //I can POST a thread to a specific message board by passing form data text and delete_password 
@@ -30,9 +32,6 @@ suite('Functional Tests', function() {
         .send({text: "text to test", delete_password: "del" })
         .end((err, res) => { 
           assert.equal(res.status, 200, 'Status OK')
-          // assert if redirected to the correct page
-          //assert.isString(res.text)
-          //assert.match(res.text, /Welcome to HyperDev/) 
           assert.equal(res.body.delete_password, "del")
           assert.equal(res.body.text, "text to test")
           assert.property(res.body, '_id')
@@ -40,7 +39,18 @@ suite('Functional Tests', function() {
           delPwdTestThread = res.body.delete_password
           done()  
         })
-      }) 
+      })
+      
+      test('Posting thread#2', done => {
+        chai.request(server)
+        .post('/api/threads/testboard')
+        .send({text: "text to test thread 2", delete_password: "del" })
+        .end((err, res) => { 
+          assert.equal(res.status, 200, 'Status OK')
+          idTestThread2 = res.body._id
+          done()  
+        })
+      })
       
     })
     
@@ -69,15 +79,16 @@ suite('Functional Tests', function() {
     suite('DELETE', function() {
       //I can delete a thread completely if I send a DELETE request to /api/threads/{board} and pass 
       //along the thread_id & delete_password. (Text response will be 'incorrect password' or 'success')
+      
       test('trying to delete thread with wrong password ', done => {
         chai.request(server)
           .delete('/api/threads/testboard')
-          .send({thread_id: idTestThread, delete_password: "not the good password"})
-          .end((err, res) => { 
+          .send({thread_id: idTestThread, delete_password: "nonono"})
+          .end((err, res) => {
             assert.equal(res.status, 200, 'Status OK')
-            assert.equal(res.body,"incorrect password")
-            done()  
-          })
+            assert.equal(res.body,"incorrect password") 
+            done()   
+          })  
       })
       
       test('delete thread with good password ', done => {
@@ -87,14 +98,27 @@ suite('Functional Tests', function() {
           .end((err, res) => { 
             assert.equal(res.status, 200, 'Status OK')
             assert.equal(res.body,"success")
-            done()  
+            done()   
           })
       })
+      
     });
     
     suite('PUT', function() {
-        
-
+      //I can report a thread and change it's reported value to true by sending a PUT request 
+      //to /api/threads/{board} and pass along the thread_id. (Text response will be 'success')
+      
+      test('report a thread with PUT request', done => {
+        chai.request(server)
+          .put('/api/threads/testboard')
+          .send({thread_id: idTestThread2})
+          .end((err, res) => { 
+            assert.equal(res.status, 200, 'Status OK')
+            assert.equal(res.body,"success")
+            done()
+          })
+      })
+      
     });
     
 
