@@ -195,7 +195,7 @@ suite('Functional Tests', function() {
       test('trying to delete a post with wrong password ', done => {
         chai.request(server)
           .delete('/api/replies/testboard')
-          .send({thread_id: idTestThread2, delete_password: "nonono"})
+          .send({thread_id: idTestThread2, reply_id: idReplyTestThread2, delete_password: "nonono"})
           .end((err, res) => {
             assert.equal(res.status, 200, 'Status OK')
             assert.equal(res.text,"incorrect password") 
@@ -206,7 +206,7 @@ suite('Functional Tests', function() {
       test('delete post with good password ', done => {
         chai.request(server)
           .delete('/api/replies/testboard')
-          .send({thread_id: idTestThread2, delete_password: delPwdTestThread})
+          .send({thread_id: idTestThread2, reply_id: idReplyTestThread2, delete_password: delPwdTestThread})
           .end((err, res) => { 
             assert.equal(res.status, 200, 'Status OK')
             assert.equal(res.text,"success")
