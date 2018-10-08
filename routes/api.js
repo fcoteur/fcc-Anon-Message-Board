@@ -60,12 +60,12 @@ module.exports = function (app) {
     })
 
     .put(function (req, res) {
-      let thread_id = req.body.thread_id;     
-      console.log(thread_id)
+      let thread_id = req.body.thread_id;
       Thread.findOne({_id: thread_id},(err,data) => {
         if (err) console.log(err);
         data.reported = true
         data.save((err) => {if (err) console.log(err)});
+        res.send("success"); 
       })
     })
   
@@ -91,9 +91,10 @@ module.exports = function (app) {
       Thread.findOne({_id: thread_id},(err,data) =>{
         if (err) console.log(err);
         data.replies.push(newReply);
-        data.bumped_on = Date.now();
+        data.bumped_on = data.replies[data.replies.length-1].created_on;
         data.save((err) => {if (err) console.log(err)});
-        res.redirect('/b/'+data.board+"/"+thread_id)
+        res.send(data) 
+        //res.redirect('/b/'+data.board+"/"+thread_id)
       })
     })
     
@@ -127,7 +128,6 @@ module.exports = function (app) {
             data.replies[i].reported = true;
             data.save((err) => {if (err) console.log(err)});
             res.send("success"); 
-            console.log(data)
           }
         }
       })
